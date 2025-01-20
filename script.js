@@ -1,40 +1,35 @@
-// board
-var blockSize = 25;
-var rows = 30;
-var cols = 50;
+var blockSize = 25; // Size of each block in the grid
+
 var board;
 var context;
 
-// snake head
-var snakeX = blockSize * 5;
+var rows = 30;
+var cols = 50;
+
+var snakeBody = []; // Snake body array
+
+var snakeX = blockSize * 5; // Initial position of the snake
 var snakeY = blockSize * 5;
 
-var velocityX = 0;
+var velocityX = 0; // temp variables to store the velocity of the snake
 var velocityY = 0;
 
-var snakeBody = [];
+var lastUpdateTime = 0; // Variable to store the last update time
+var snakeSpeed = 100; // to control a tick in game loop
 
-var lastUpdateTime = 0;
-var snakeSpeed = 100;
+var gameOver = false; //  to check if the game is over or not
 
-var gameOver = false;
-
-var hasMoved = true;
-
-// // food
-// var foodX = blockSize * 18;
-// var foodY = blockSize * 28;
+var hasMoved = true; // to check if the snake has moved or not
 
 window.onload = function () {
+  // loads the game
   board = document.getElementById("board");
   board.height = rows * blockSize;
   board.width = cols * blockSize;
   context = board.getContext("2d");
 
-  placeFood();
-  document.addEventListener("keyup", changeDirection);
-  //   update();
-  //   setInterval(update, 1000 / 10);
+  placeFood(); // place the food on a random place
+  document.addEventListener("keyup", changeDirection); // change the direction of the snake
   requestAnimationFrame(update);
 };
 
@@ -44,7 +39,7 @@ function update(currentTime) {
   }
   if (currentTime - lastUpdateTime < snakeSpeed) {
     requestAnimationFrame(update);
-    return 0;
+    return;
   }
   lastUpdateTime = currentTime;
   context.fillStyle = "black";
@@ -53,6 +48,7 @@ function update(currentTime) {
   if (snakeX == foodX && snakeY == foodY) {
     snakeBody.push([foodX, foodY]);
     placeFood();
+    updateScore();
   }
 
   for (let i = snakeBody.length - 1; i > 0; i--) {
@@ -104,16 +100,25 @@ function update(currentTime) {
 function changeDirection(event) {
   if (!hasMoved) return 0;
 
-  if (event.code == "ArrowUp" && velocityY != 1) {
+  if ((event.code == "KeyW" || event.code == "ArrowUp") && velocityY != 1) {
     velocityX = 0;
     velocityY = -1;
-  } else if (event.code == "ArrowDown" && velocityY != -1) {
+  } else if (
+    (event.code == "KeyS" || event.code == "ArrowDown") &&
+    velocityY != -1
+  ) {
     velocityX = 0;
     velocityY = 1;
-  } else if (event.code == "ArrowLeft" && velocityX != 1) {
+  } else if (
+    (event.code == "KeyA" || event.code == "ArrowLeft") &&
+    velocityX != 1
+  ) {
     velocityX = -1;
     velocityY = 0;
-  } else if (event.code == "ArrowRight" && velocityX != -1) {
+  } else if (
+    (event.code == "KeyD" || event.code == "ArrowRight") &&
+    velocityX != -1
+  ) {
     velocityX = 1;
     velocityY = 0;
   }
@@ -139,3 +144,21 @@ function placeFood() {
   foodX = Math.floor(Math.random() * cols) * blockSize;
   foodY = Math.floor(Math.random() * rows) * blockSize;
 }
+
+//  scoring system
+
+let score = 0;
+
+function updateScore() {
+  score += 10; // Increment score by 10 (or any other value)
+  document.getElementById("score").innerText = `Score: ${score}`;
+}
+
+// Call eatFood function whenever the snake eats food
+// This is just an example, you need to integrate it with your game logic
+document.addEventListener("keydown", (event) => {
+  if (event.key === "f") {
+    // Press 'f' to simulate eating food
+    eatFood();
+  }
+});
